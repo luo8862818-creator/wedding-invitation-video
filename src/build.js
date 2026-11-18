@@ -5,11 +5,15 @@ export const durations=[8,8,10,10,12,10,12,12,12,8,10,8];
 export const titles=['我们的婚礼邀请函','新人登场','遇见你','我们的故事','甜蜜回忆','因为是你','婚礼日期','婚礼流程','婚礼地点','宾客提示','诚挚邀请','期待您的到来'];
 export function build(config,write=true){
  const markup=makeScenes(config),css=sceneCss();
+ let absoluteStart=0;
+ const speed=11*1920/120;
  const scenes=markup.map((body,i)=>{
   const id=`scene-${String(i+1).padStart(2,'0')}`,duration=durations[i];
-  const next=markup[i+1];
-  const motion=`const tl=gsap.timeline({paused:true});tl.fromTo('#${id}-art',{scale:1},{scale:1.018,duration:${duration-1.25},ease:'none'},0);${next?`tl.fromTo('#${id}-current',{y:0},{y:-1920,duration:1.249,ease:'power2.inOut'},${duration-1.25});tl.fromTo('#${id}-next',{y:1920},{y:0,duration:1.249,ease:'power2.inOut'},${duration-1.25});`:''}window.__timelines=window.__timelines||{};window.__timelines['${id}']=tl;`;
-  const frame=`<div class="slide-current" id="${id}-current">${body.replaceAll('SCENEID',id)}</div>${next?`<div class="slide-next" id="${id}-next" data-layout-ignore>${next.replaceAll('SCENEID',id+'-peek')}</div>`:''}`;
+  const from=speed*absoluteStart,to=speed*(absoluteStart+duration);
+  const motion=`const tl=gsap.timeline({paused:true});tl.fromTo('#${id}-strip',{y:${-from}},{y:${-to},duration:${duration},ease:'none'},0);window.__timelines=window.__timelines||{};window.__timelines['${id}']=tl;`;
+  const panels=markup.map((html,j)=>({html,j})).filter(({j})=>(j+1)*1920>=from&&j*1920<=to+1920).map(({html,j})=>`<div class="continuous-panel" style="top:${j*1920}px">${html.replaceAll('SCENEID',id+'-panel-'+j)}</div>`).join('');
+  const frame=`<div class="continuous-strip" id="${id}-strip" data-layout-allow-overflow>${panels}</div>`;
+  absoluteStart+=duration;
   return {id,d:duration,html:`<template><style>#root{position:absolute;inset:0;overflow:hidden;}\n${css}</style><div id="root" data-composition-id="${id}" data-width="1080" data-height="1920" data-duration="${duration}">${frame}</div><script>${motion}</script></template>`};
  });
  if(write){

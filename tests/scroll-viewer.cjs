@@ -18,11 +18,11 @@ const puppeteer=require(process.env.PUPPETEER_PATH||'C:/Users/12293/AppData/Loca
   await page.evaluate(()=>{window.invitationPlayer.seek(7.3);window.invitationPlayer.timeline.play();});
   console.log('waiting auto second page');await page.waitForFunction(()=>window.invitationPlayer.page>=2,{polling:100});console.log('second page ready');
   await page.evaluate(()=>{window.invitationPlayer.timeline.pause();});
-  const times=[4,12,21,31,42,53,64,76,88,98,107,116];
+  const positions=[];for(const t of [0,1,2,7,8,9,15,16,17,35,36,37,69,70,71,111,112,113,119]){await page.evaluate(t=>window.invitationPlayer.seek(t),t);const y=await page.$eval('#strip',el=>gsap.getProperty(el,'y'));assert.ok(Math.abs(y+176*t)<0.01,'constant speed at '+t);positions.push({t,y});}console.log('PASS constant 176 px/s across all former page boundaries');const times=Array.from({length:12},(_,i)=>Math.min(119.99,i/11*120));
   for(let i=0;i<times.length;i++){console.log('capture',i+1);
    await page.evaluate(t=>window.invitationPlayer.seek(t),times[i]);
-   assert.equal(await page.evaluate(()=>window.invitationPlayer.page),i+1);
-   y=await page.$eval('#strip',el=>gsap.getProperty(el,'y'));assert.ok(Math.abs(y+i*1920)<1);
+   assert.ok(Math.abs((await page.evaluate(()=>window.invitationPlayer.page))-(i+1))<=1);
+   y=await page.$eval('#strip',el=>gsap.getProperty(el,'y'));assert.ok(Math.abs(y+i*1920)<2);
    await page.waitForFunction(()=>document.fonts.status==='loaded');
    await page.$eval('#viewport',()=>{});
    await (await page.$('#viewport')).screenshot({path:`out/remake/page-${String(i+1).padStart(2,'0')}.png`});
@@ -33,6 +33,6 @@ const puppeteer=require(process.env.PUPPETEER_PATH||'C:/Users/12293/AppData/Loca
   console.log('autoplay ready');assert.equal(await page.$$eval('.web-slide',els=>els.length),12);
   assert.equal(await page.$('.sample-label'),null,'real config has no demo label or invented personal data');
   assert.deepEqual(errors,[]);
-  console.log('PASS: automatic continuous vertical slide, intermediate seam, all 12 pages, mobile, empty real configuration, no JavaScript errors');
+  console.log('PASS: uninterrupted slow linear upward scroll, no holds or page transitions, all 12 pages, mobile, real configuration, no JavaScript errors');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1);});
