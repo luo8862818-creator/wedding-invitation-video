@@ -1,0 +1,93 @@
+{
+  "project": {
+    "title": "我们的婚礼邀请函",
+    "language": "zh-CN",
+    "canvas": {
+      "width": 1080,
+      "height": 1920,
+      "fps": 30,
+      "durationSeconds": 120
+    }
+  },
+  "couple": {
+    "groomName": "",
+    "brideName": "",
+    "groomEnglishName": "",
+    "brideEnglishName": ""
+  },
+  "wedding": {
+    "date": "",
+    "dateDisplay": "",
+    "weekdayOverride": "",
+    "welcomeTime": "",
+    "ceremonyTime": "",
+    "banquetTime": "",
+    "venueName": "",
+    "province": "",
+    "city": "",
+    "district": "",
+    "address": "",
+    "mapUrl": "",
+    "contactName": "",
+    "contactPhone": "",
+    "rsvpDeadline": "",
+    "parkingInfo": "",
+    "dressCode": ""
+  },
+  "story": {
+    "shortStory": "",
+    "invitationText": "诚邀您见证我们的幸福时刻",
+    "thankYouText": "感谢有你，期待与你相见",
+    "guestNotes": ""
+  },
+  "schedule": [
+    {
+      "time": "",
+      "title": "迎宾签到",
+      "description": ""
+    },
+    {
+      "time": "",
+      "title": "婚礼仪式",
+      "description": ""
+    },
+    {
+      "time": "",
+      "title": "婚宴开始",
+      "description": ""
+    }
+  ],
+  "media": {
+    "coverBackground": "assets/images/backgrounds/bg-cover-flower-garden.png",
+    "coupleCover": "assets/images/characters/couple-cover-pose.png",
+    "groomPortrait": "",
+    "bridePortrait": "",
+    "couplePortrait": "",
+    "storyPhoto1": "",
+    "storyPhoto2": "",
+    "storyPhoto3": "",
+    "memoryPhoto1": "",
+    "memoryPhoto2": "",
+    "memoryPhoto3": "",
+    "ringPhoto": "",
+    "bouquetPhoto": "",
+    "venuePhoto": "",
+    "venueMapImage": "",
+    "finalePhoto": "",
+    "musicFile": ""
+  },
+  "sceneDurations": [
+    8,
+    8,
+    10,
+    10,
+    12,
+    10,
+    12,
+    12,
+    12,
+    8,
+    10,
+    8
+  ]
+}
