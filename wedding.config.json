@@ -10,37 +10,58 @@
     }
   },
   "couple": {
-    "groomName": "",
-    "brideName": "",
+    "groomName": "张云川",
+    "brideName": "林若溪",
     "groomEnglishName": "",
     "brideEnglishName": ""
   },
   "wedding": {
-    "date": "",
+    "date": "2026-05-23",
     "dateDisplay": "",
     "weekdayOverride": "",
-    "welcomeTime": "",
-    "ceremonyTime": "",
-    "banquetTime": "",
-    "venueName": "",
+    "welcomeTime": "13:30",
+    "ceremonyTime": "14:00",
+    "banquetTime": "18:00",
+    "venueName": "云栖花园酒店",
     "province": "",
     "city": "",
     "district": "",
-    "address": "",
+    "address": "浙江省杭州市西湖区云栖路88号",
     "mapUrl": "",
     "contactName": "",
     "contactPhone": "",
     "rsvpDeadline": "",
-    "parkingInfo": "",
-    "dressCode": ""
+    "parkingInfo": "酒店提供停车位",
+    "dressCode": "建议优雅、正式的服装"
   },
   "story": {
     "shortStory": "",
-    "invitationText": "诚邀您见证我们的幸福时刻",
-    "thankYouText": "感谢有你，期待与你相见",
-    "guestNotes": ""
+    "invitationText": "我们诚挚地邀请您\n见证我们的幸福时刻\n与我们一同分享这份喜悦",
+    "thankYouText": "与我们共赴这场爱的盛宴 ♡",
+    "guestNotes": "您的到来就是\n最好的礼物 ♡"
   },
-  "schedule": [],
+  "schedule": [
+    {
+      "time": "13:30",
+      "title": "宾客签到",
+      "description": ""
+    },
+    {
+      "time": "14:00",
+      "title": "婚礼仪式",
+      "description": ""
+    },
+    {
+      "time": "18:00",
+      "title": "婚宴盛典",
+      "description": ""
+    },
+    {
+      "time": "20:30",
+      "title": "宴会结束",
+      "description": ""
+    }
+  ],
   "media": {
     "coverBackground": "assets/images/remake/cover.png",
     "coupleCover": "",

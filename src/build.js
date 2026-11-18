@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import {makeScenes,makeDemo,sceneCss} from './scenes.js';
+import {makeScenes,sceneCss} from './scenes.js';
 import {webPage} from './web-page.js';
 export const durations=[8,8,10,10,12,10,12,12,12,8,10,8];
 export const titles=['我们的婚礼邀请函','新人登场','遇见你','我们的故事','甜蜜回忆','因为是你','婚礼日期','婚礼流程','婚礼地点','宾客提示','诚挚邀请','期待您的到来'];
@@ -22,7 +22,7 @@ export function build(config,write=true){
   const hosts=scenes.map(s=>{const host=`<div id="${s.id}" class="clip" data-composition-id="${s.id}" data-composition-src="compositions/${s.id}.html" data-width="1080" data-height="1920" data-start="${time}" data-duration="${s.d}" data-track-index="0" data-track-kind="graphics"></div>`;time+=s.d;return host;}).join('\n');
   fs.writeFileSync('index.html',`<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=1080,height=1920"><script src="assets/vendor/gsap.min.js"></script><style>html,body{margin:0;width:1080px;height:1920px;overflow:hidden}.clip{position:absolute;inset:0}</style></head><body><div id="root" data-composition-id="main" data-width="1080" data-height="1920" data-start="0" data-duration="120" data-fps="30">${hosts}${config.media.musicFile?`<audio id="wedding-music" class="clip" src="${config.media.musicFile}" data-start="0" data-duration="120" data-track-index="1" data-volume="0.7" data-fade-out="4"></audio>`:''}</div><script>window.__timelines=window.__timelines||{};window.__timelines.main=gsap.timeline({paused:true});</script></body></html>`);
   fs.writeFileSync('invitation.html',webPage(markup,config,false));
-  const demo=makeDemo(config);fs.writeFileSync('invitation-demo.html',webPage(makeScenes(demo),demo,true));
+  fs.writeFileSync('invitation-demo.html',webPage(markup,config,false));
  }
  return scenes;
 }

@@ -14,7 +14,7 @@ export function makeScenes(c){
  const pair=[c.couple.groomName,c.couple.brideName].filter(Boolean).join(' · ');
  const date=w.dateDisplay||w.date;
  const validDate=/^\d{4}-\d{2}-\d{2}$/.test(w.date)&&!Number.isNaN(Date.parse(w.date));
- const weekday=w.weekdayOverride||(validDate?'星期'+['日','一','二','三','四','五','六'][new Date(w.date+'T00:00:00Z').getUTCDay()]:'');
+ const weekday=w.weekdayOverride||(validDate?'星期'+['日','一','二','三','四','五','六'][new Date(w.date+'T00:00:00Z').getUTCDay()]+' · '+['SUN','MON','TUE','WED','THU','FRI','SAT'][new Date(w.date+'T00:00:00Z').getUTCDay()]:'');
  const dateParts=validDate?w.date.split('-'):[];
  const schedule=c.schedule.slice(0,8);
  const notes=[['dress','着装建议',w.dressCode],['car','交通出行',w.parkingInfo],['gift','礼物建议',story.guestNotes]];
