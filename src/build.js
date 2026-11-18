@@ -1,32 +1,25 @@
 import fs from 'node:fs';
+import {makeScenes,makeDemo,sceneCss} from './scenes.js';
+import {webPage} from './web-page.js';
 export const durations=[8,8,10,10,12,10,12,12,12,8,10,8];
 export const titles=['我们的婚礼邀请函','新人登场','遇见你','我们的故事','甜蜜回忆','因为是你','婚礼日期','婚礼流程','婚礼地点','宾客提示','诚挚邀请','期待您的到来'];
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-export function build(c,write=true){
- const text=(s,cls='')=>s?`<p class="${cls}">${esc(s)}</p>`:'';
- const photo=(key,label,cls='')=>`<figure class="photo ${cls}" data-media-key="${key}">${c.media[key]?`<img src="${esc(c.media[key])}" alt="${label}">`:`<div class="empty"><span>♡</span>${label}<small>留给我们的珍贵瞬间</small></div>`}</figure>`;
- const pair=[c.couple.groomName,c.couple.brideName].filter(Boolean).join(' & ');
- const date=c.wedding.dateDisplay||c.wedding.date;
- const weekday=c.wedding.weekdayOverride||(c.wedding.date?'星期'+['日','一','二','三','四','五','六'][new Date(c.wedding.date+'T00:00:00Z').getUTCDay()]:'');
- const bodies=[
- `<div class="cover-title"><small>Wedding Invitation</small><h1>${c.project.title==='我们的婚礼邀请函'?'我们的<br>婚礼邀请函':esc(c.project.title)} ♡</h1></div>${photo('coupleCover','新人双人形象','hero cutout')}${text(pair,'signature')}${text(date,'date-line')}`,
- `<article class="paper names"><div class="bow">୨୧</div><small>TOGETHER FOREVER</small><h2>新人登场</h2><span>新郎</span>${text(c.couple.groomName,'name')}${text(c.couple.groomEnglishName)}<div class="rule">♡</div><span>新娘</span>${text(c.couple.brideName,'name')}${text(c.couple.brideEnglishName)}${text(date)}<div class="portraits">${photo('groomPortrait','新郎形象')}${photo('bridePortrait','新娘形象')}</div></article>`,
- `${photo('couplePortrait','新人主视觉','full-photo')}<div class="caption"><h2>遇见你</h2><p>是我最幸运的事</p><div class="rule">♡</div></div>`,
- `<article class="paper"><small>OUR LOVE STORY</small><h2>我们的故事 ♡</h2><div class="rule">♡</div>${text(c.story.shortStory,'story-copy')}<div class="story-photos">${['storyPhoto1','storyPhoto2','storyPhoto3'].map((k,i)=>photo(k,'故事照片 '+(i+1))).join('')}</div></article>`,
- `<h2 class="sky-title">甜蜜回忆 ♡</h2><div class="scrapbook">${['memoryPhoto1','memoryPhoto2','memoryPhoto3'].map((k,i)=>`<div class="polaroid p${i}">${photo(k,'回忆照片 '+(i+1))}<span>♡</span></div>`).join('')}</div>`,
- `<div class="details">${photo('ringPhoto','戒指 · 牵手')}${photo('bouquetPhoto','手捧花')}</div><div class="caption light"><h2>因为是你 ♡</h2><p>未来的每一天<br>都充满期待</p></div>`,
- `<article class="paper date-card"><small>SAVE THE DATE</small><h2>婚礼日期</h2><div class="rule">♡</div>${date?text(date,'big-date'):'<div class="empty-calendar">♡</div>'}${text(weekday)}${text(c.wedding.ceremonyTime)}<div class="rule">♡</div></article>`,
- `<article class="paper"><small>THE WEDDING DAY</small><h2>婚礼流程</h2>${!c.schedule.length?'<div class="empty-message">♡<br>将美好的一天，慢慢写下</div>':''}<div class="agenda">${c.schedule.map(s=>`<div class="event"><span>♡</span><div>${text(s.time,'event-time')}${text(s.title)}${text(s.description,'muted')}</div></div>`).join('')}</div></article>`,
- `<h2 class="sky-title">婚礼地点 ♡</h2>${photo('venuePhoto','婚礼场地','venue')}<article class="venue-card">${text(c.wedding.venueName,'venue-name')}${text([c.wedding.province,c.wedding.city,c.wedding.district,c.wedding.address].filter(Boolean).join(' '))}</article>${c.media.venueMapImage?photo('venueMapImage','场地地图','map'):''}`,
- `<article class="paper"><small>WITH LOVE & CARE</small><h2>宾客提示 ♡</h2>${![c.wedding.dressCode,c.wedding.parkingInfo,c.story.guestNotes].some(Boolean)?'<div class="empty-message">♡<br>把细致的心意，留给每一位来宾</div>':''}${[['着装建议',c.wedding.dressCode],['交通与停车',c.wedding.parkingInfo],['温馨提示',c.story.guestNotes]].filter(x=>x[1]).map(x=>`<section class="note"><h3>${x[0]}</h3>${text(x[1])}</section>`).join('')}</article>`,
- `<article class="paper invitation"><div class="seal">♡</div><small>YOU ARE INVITED</small><h2>诚挚邀请</h2>${text(c.story.invitationText,'invite-copy')}<div class="rule">♡</div>${text(c.wedding.contactName)}${text(c.wedding.contactPhone)}${text(c.wedding.rsvpDeadline?'敬请于 '+c.wedding.rsvpDeadline+' 前回复':'')}</article>`,
- `<h2 class="sky-title">期待您的到来</h2>${text(c.story.thankYouText,'final-copy')}${photo('finalePhoto','结尾合照','final-photo')}${text(pair,'signature')}${text(date,'date-line')}`
- ];
- const css=fs.readFileSync('src/scene.css','utf8');
- const scenes=bodies.map((body,i)=>{const id='scene-'+String(i+1).padStart(2,'0'),d=durations[i];const bg=i===0?c.media.coverBackground:c.media['background'+(i+1)];return {id,d,html:`<template><style>#root{position:absolute;inset:0;}\n${css}</style><div id="root" data-composition-id="${id}" data-width="1080" data-height="1920" data-duration="${d}"><div class="scene look-${i+1}" ${bg?`style="background-image:url('${esc(bg)}')"`:''}><div class="ornament top" data-layout-ignore>✿</div><div class="ornament bottom" data-layout-ignore>✿</div><div class="content" id="${id}-content">${body}</div><div class="page-number">${String(i+1).padStart(2,'0')} / 12 · FOREVER BEGINS HERE</div></div></div><script>const tl=gsap.timeline({paused:true});tl.fromTo('#${id}-content',{opacity:${i===0?1:0},y:${i%2?60:0},scale:${i%2?1:0.96}},{opacity:1,y:0,scale:1,duration:1.2,ease:'power2.out'},0);tl.to('#${id}-content',{y:-12,duration:${d-2},ease:'sine.inOut'},1.5);if(${body.includes('<figure')})tl.fromTo('#${id}-content .photo',{opacity:${i===0?1:0},y:35},{opacity:1,y:0,duration:1.1,stagger:0.22,ease:'power2.out'},0.35);if(${body.includes('<img')})tl.fromTo('#${id}-content img',{scale:1},{scale:1.045,duration:${d-1},ease:'none'},0.7);window.__timelines=window.__timelines||{};window.__timelines['${id}']=tl;</script></template>`};});
- let start=0;const hosts=scenes.map(s=>{const h=`<div id="${s.id}" class="clip" data-composition-id="${s.id}" data-composition-src="compositions/${s.id}.html" data-width="1080" data-height="1920" data-start="${start}" data-duration="${s.d}" data-track-index="0" data-track-kind="graphics"></div>`;start+=s.d;return h;}).join('\n');
- const index=`<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=1080,height=1920"><script src="assets/vendor/gsap.min.js"></script><style>*{box-sizing:border-box}html,body{margin:0;width:1080px;height:1920px;overflow:hidden}.clip{position:absolute;inset:0}</style></head><body><div id="root" data-composition-id="main" data-start="0" data-duration="120" data-width="1080" data-height="1920" data-fps="30">${hosts}${c.media.musicFile?`<audio id="wedding-music" class="clip" src="${esc(c.media.musicFile)}" data-start="0" data-duration="120" data-track-index="1" data-volume="0.7" data-fade-out="4"></audio>`:''}</div><script>window.__timelines=window.__timelines||{};window.__timelines.main=gsap.timeline({paused:true});</script></body></html>`;
- if(write){scenes.forEach(s=>fs.writeFileSync(`compositions/${s.id}.html`,s.html));fs.writeFileSync('index.html',index);}
+export function build(config,write=true){
+ const markup=makeScenes(config),css=sceneCss();
+ const scenes=markup.map((body,i)=>{
+  const id=`scene-${String(i+1).padStart(2,'0')}`,duration=durations[i];
+  const next=markup[i+1];
+  const motion=`const tl=gsap.timeline({paused:true});tl.fromTo('#${id}-art',{scale:1},{scale:1.018,duration:${duration-1.25},ease:'none'},0);${next?`tl.fromTo('#${id}-current',{y:0},{y:-1920,duration:1.249,ease:'power2.inOut'},${duration-1.25});tl.fromTo('#${id}-next',{y:1920},{y:0,duration:1.249,ease:'power2.inOut'},${duration-1.25});`:''}window.__timelines=window.__timelines||{};window.__timelines['${id}']=tl;`;
+  const frame=`<div class="slide-current" id="${id}-current">${body.replaceAll('SCENEID',id)}</div>${next?`<div class="slide-next" id="${id}-next" data-layout-ignore>${next.replaceAll('SCENEID',id+'-peek')}</div>`:''}`;
+  return {id,d:duration,html:`<template><style>#root{position:absolute;inset:0;overflow:hidden;}\n${css}</style><div id="root" data-composition-id="${id}" data-width="1080" data-height="1920" data-duration="${duration}">${frame}</div><script>${motion}</script></template>`};
+ });
+ if(write){
+  scenes.forEach(s=>fs.writeFileSync(`compositions/${s.id}.html`,s.html));
+  let time=0;
+  const hosts=scenes.map(s=>{const host=`<div id="${s.id}" class="clip" data-composition-id="${s.id}" data-composition-src="compositions/${s.id}.html" data-width="1080" data-height="1920" data-start="${time}" data-duration="${s.d}" data-track-index="0" data-track-kind="graphics"></div>`;time+=s.d;return host;}).join('\n');
+  fs.writeFileSync('index.html',`<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=1080,height=1920"><script src="assets/vendor/gsap.min.js"></script><style>html,body{margin:0;width:1080px;height:1920px;overflow:hidden}.clip{position:absolute;inset:0}</style></head><body><div id="root" data-composition-id="main" data-width="1080" data-height="1920" data-start="0" data-duration="120" data-fps="30">${hosts}${config.media.musicFile?`<audio id="wedding-music" class="clip" src="${config.media.musicFile}" data-start="0" data-duration="120" data-track-index="1" data-volume="0.7" data-fade-out="4"></audio>`:''}</div><script>window.__timelines=window.__timelines||{};window.__timelines.main=gsap.timeline({paused:true});</script></body></html>`);
+  fs.writeFileSync('invitation.html',webPage(markup,config,false));
+  const demo=makeDemo(config);fs.writeFileSync('invitation-demo.html',webPage(makeScenes(demo),demo,true));
+ }
  return scenes;
 }
 if(process.argv[1]?.endsWith('build.js'))build(JSON.parse(fs.readFileSync('wedding.config.json','utf8')));
