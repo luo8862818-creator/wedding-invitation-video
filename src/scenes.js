@@ -37,7 +37,8 @@ export function makeScenes(c){
   const overrides=[m.coverBackground,m.background2,m.couplePortrait,m.background4,m.background5,m.ringPhoto,m.background7,m.background8,m.background9,m.background10,m.background11,m.finalePhoto];
   const background=file(overrides[i])||file(art(images[i]));
   const editKeys=['coverBackground','background2','couplePortrait','background4','background5','ringPhoto','background7','background8','background9','background10','background11','finalePhoto'];
-  return `<div class="scene look-${i+1}"><div class="artwork" data-media-key="${editKeys[i]}" id="SCENEID-art" ${background?`style="background-image:url('${esc(background)}')"`:''}></div><div class="content" id="SCENEID-content">${body}</div></div>`;
+  const seam=position=>`<div class="floral-seam seam-${position}" data-layout-ignore aria-hidden="true"><img src="assets/images/decorations/floral-seam.png" alt=""></div>`;
+  return `<div class="scene look-${i+1}"><div class="artwork" data-media-key="${editKeys[i]}" id="SCENEID-art" ${background?`style="background-image:url('${esc(background)}')"`:''}></div><div class="content" id="SCENEID-content">${body}</div>${i>0?seam('top'):''}${i<11?seam('bottom'):''}</div>`;
  });
 }
 export function makeDemo(config){
