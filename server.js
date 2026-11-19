@@ -4,7 +4,7 @@ import path from 'node:path';
 import {randomUUID} from 'node:crypto';
 import {build} from './src/build.js';
 import {backgroundSlots,subjectSlots} from './src/media-slots.js';
-import {createSubject} from './src/subject-images.js';
+import {createSubject,createOriginalSubject} from './src/subject-images.js';
 import {MAX_UPLOAD_BYTES,MAX_UPLOAD_MB} from './src/upload-limits.js';
 const root=process.cwd(),configFile=path.join(root,'wedding.config.json');
 export const read=()=>JSON.parse(fs.readFileSync(configFile,'utf8'));
@@ -35,13 +35,13 @@ export const server=http.createServer(async(req,res)=>{const reply=(code,obj)=>{
  if(url.pathname==='/api/config'){if(req.method==='GET')return reply(200,read());if(req.method==='PUT')return reply(200,save(JSON.parse(body)));}
  if(url.pathname==='/api/subject'&&req.method==='POST'){
   const key=url.searchParams.get('key');if(!subjectSlots.some(slot=>slot.key===key))throw Error('未知人物位置');
-  const result=await createSubject(body,url.searchParams.get('cutout')==='1');
+  const result=url.searchParams.has('cutout')?await createSubject(body,url.searchParams.get('cutout')==='1'):await createOriginalSubject(body);
   const c=read();c.media[key]=result.path;c.subjectPlacement={...c.subjectPlacement,[key]:{x:0,y:0,scale:100}};
     try{save(c);}catch(error){fs.rmSync(result.path,{force:true});fs.rmSync(result.sourcePath,{force:true});throw error;}return reply(200,result);
  }
  if(url.pathname==='/api/upload'&&req.method==='POST'){
  const key=url.searchParams.get('key');if(!mediaKeys.includes(key))throw Error('未知素材位置');
- if(subjectSlots.some(slot=>slot.key===key))throw Error('人物图片请使用“只换新人”入口，避免把照片背景一起覆盖。');
+ if(subjectSlots.some(slot=>slot.key===key))throw Error('新人照片请使用“上传原照片（不抠图）”入口。');
  let ext='';if(body.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])))ext='png';else if(body[0]===255&&body[1]===216&&body[2]===255)ext='jpg';else if(body.toString('ascii',0,4)==='RIFF'&&body.toString('ascii',8,12)==='WEBP')ext='webp';
  if(key==='musicFile'){ext=body.toString('ascii',0,3)==='ID3'||(body[0]===255&&(body[1]&224)===224)?'mp3':body.toString('ascii',0,4)==='RIFF'&&body.toString('ascii',8,12)==='WAVE'?'wav':'';}
  if(!ext||body.length<24)throw Error('文件内容无效，仅支持 PNG/JPEG/WEBP 或 MP3/WAV 音乐');

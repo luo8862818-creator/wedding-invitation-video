@@ -4,8 +4,8 @@ import {MAX_UPLOAD_BYTES,MAX_UPLOAD_MB} from './upload-limits.js';
 export function renderMediaEditor({container,getConfig,api,persist,changed,status,rerender,onPage}){
  container.replaceChildren();
  const intro=document.createElement('p');intro.className='media-help';
- intro.textContent='换人请选择“只换新人”；换相框里的照片请选择“相框内照片”。这些操作保留原背景、相框、文字和花饰。整页背景替换已移到下方高级选项。';container.append(intro);
- const people=document.createElement('section');people.id='subject-panel';people.innerHTML='<h3>只换新人 · 保留背景</h3><p class="media-help">普通照片可在本机抠出人物，也可直接上传透明 PNG。不改变人物姿势；发丝和头纱边缘请预览检查。</p>';container.append(people);
+ intro.textContent='新人照片直接放进原人物区域，不自动抠图。照片自己的背景保留，页面文字、花饰和相框在上层；换相框内照片请使用下方对应入口。';container.append(intro);
+ const people=document.createElement('section');people.id='subject-panel';people.innerHTML='<h3>原照片替换人物区域</h3><p class="media-help">直接使用完整原照片，不自动抠图。照片填满原人物区域，原照片背景保留；文字和花饰叠在照片上方。调整大小和裁切位置使人物合适入画。</p>';container.append(people);
  const frames=document.createElement('section');frames.id='frame-panel';frames.innerHTML='<h3>只换相框内照片</h3><p class="media-help">仅替换三个相框内部，相框、爱心、天空和花饰保留。</p>';container.append(frames);
  const advanced=document.createElement('details');advanced.id='advanced-backgrounds';advanced.innerHTML='<summary>高级：替换整页背景（会改变天空或信纸）</summary>';container.append(advanced);
  const backgrounds=document.createElement('section');backgrounds.id='background-panel';
@@ -37,8 +37,8 @@ export function renderMediaEditor({container,getConfig,api,persist,changed,statu
   const input=document.createElement('input');input.type='file';input.className='media-file-input';
   input.accept=key==='musicFile'?'.mp3,.wav':'.png,.jpg,.jpeg,.webp';input.setAttribute('aria-label',`${slot.title}上传`);
   const upload=document.createElement('button');upload.type='button';upload.className='upload-media primary';
-  upload.textContent=subject?'上传照片并抠出新人':frame?'替换相框内照片':path?'替换图片':'上传图片';if(key==='musicFile')upload.textContent=path?'替换音乐':'上传音乐';
-  const choose=()=>{input.dataset.cutout='1';input.click();};upload.onclick=choose;thumbnail.onclick=choose;
+  upload.textContent=subject?'上传原照片（不抠图）':frame?'替换相框内照片':path?'替换图片':'上传图片';if(key==='musicFile')upload.textContent=path?'替换音乐':'上传音乐';
+  const choose=()=>{delete input.dataset.cutout;input.click();};upload.onclick=choose;thumbnail.onclick=choose;
   input.onchange=async()=>{
    const file=input.files[0];if(!file)return;
    await perform(info,async()=>{
@@ -47,8 +47,8 @@ export function renderMediaEditor({container,getConfig,api,persist,changed,statu
      if(!/\.(png|jpe?g|webp)$/i.test(file.name))throw Error('请选择 PNG、JPG 或 WEBP 图片');
      const bitmap=await createImageBitmap(file).catch(()=>{throw Error('无法读取图片，请选择有效的图片文件');});bitmap.close();
     }
-    info.textContent=subject?'正在本机处理人物，请稍候…':'正在上传…';await persist();
-    const result=await api(subject?'/api/subject?key='+key+'&cutout='+(input.dataset.cutout||'1'):'/api/upload?key='+key,{method:'POST',body:file});
+    info.textContent=subject?'正在保存原照片…':'正在上传…';await persist();
+    const result=await api(subject?'/api/subject?key='+key+(input.dataset.cutout==='0'?'&cutout=0':''):'/api/upload?key='+key,{method:'POST',body:file});
     getConfig().media[key]=result.path;
     if(subject)getConfig().subjectPlacement={...getConfig().subjectPlacement,[key]:{x:0,y:0,scale:100}};
     if(slot.page!==undefined)onPage(slot.page);
@@ -71,7 +71,7 @@ export function renderMediaEditor({container,getConfig,api,persist,changed,statu
   }
   if(subject){
    const restore=document.createElement('button');restore.type='button';restore.textContent='恢复卡通新人';restore.onclick=()=>perform(info,async()=>{getConfig().media[key]=slot.defaultPath;getConfig().subjectPlacement={...getConfig().subjectPlacement,[key]:{x:0,y:0,scale:100}};await persist();onPage(slot.page);});controls.append(restore);
-   for(const [axis,title,min,max]of [['scale','人物大小',50,180],['x','左右位置',-400,400],['y','上下位置',-400,400]]){
+   for(const [axis,title,min,max]of [['scale','照片缩放',100,180],['x','左右裁切位置',-400,400],['y','上下裁切位置',-400,400]]){
     const label=document.createElement('label');label.className='subject-adjust';label.textContent=title;
     const range=document.createElement('input');range.type='range';range.min=min;range.max=max;range.step=1;range.value=getConfig().subjectPlacement?.[key]?.[axis]??(axis==='scale'?100:0);range.setAttribute('aria-label',title);
     range.onchange=()=>perform(info,async()=>{const previous=getConfig().subjectPlacement?.[key]||{x:0,y:0,scale:100};getConfig().subjectPlacement={...getConfig().subjectPlacement,[key]:{...previous,[axis]:Number(range.value)}};await persist();onPage(slot.page);});label.append(range);card.append(label);

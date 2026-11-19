@@ -9,9 +9,9 @@ export const backgroundSlots=names.map((title,index)=>({
  defaultPath:[0,2,11].includes(index)?`assets/images/layers/${defaults[index]}-background.png`:`assets/images/remake/${defaults[index]}.png`
 }));
 export const subjectSlots=[
- {kind:'subject',key:'coupleCover',title:'01 · 封面新人（背景保留）',page:0,defaultPath:'assets/images/layers/cover-characters.png'},
- {kind:'subject',key:'couplePortrait',title:'03 · 只换新人（天空和花饰保留）',page:2,defaultPath:'assets/images/layers/hero-characters.png'},
- {kind:'subject',key:'finalePhoto',title:'12 · 结尾新人（烟花背景保留）',page:11,defaultPath:'assets/images/layers/finale-characters.png'}
+ {kind:'subject',key:'coupleCover',title:'01 · 封面照片（替换人物区域）',page:0,defaultPath:'assets/images/layers/cover-characters.png'},
+ {kind:'subject',key:'couplePortrait',title:'03 · 新人照片（文字和花饰保留）',page:2,defaultPath:'assets/images/layers/hero-characters.png'},
+ {kind:'subject',key:'finalePhoto',title:'12 · 结尾照片（替换人物区域）',page:11,defaultPath:'assets/images/layers/finale-characters.png'}
 ];
 export const photoSlots=[
  {kind:'frame',key:'memoryPhoto1',title:'05 · 左上相框内照片',page:4},

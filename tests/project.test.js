@@ -28,7 +28,7 @@ test('all twelve background slots upload, persist, compile and remove without ca
  const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=','base64');
  try{
   for(const slot of backgroundSlots){
-   const response=await fetch(base+'/api/upload?key='+slot.key,{method:'POST',body:png});assert.equal(response.status,200);
+   const response=await fetch(base+'/api/upload?key='+slot.key,{method:'POST',body:png});assert.equal(response.status,200,response.status===200?'':await response.text());
    const {path}=await response.json();files.push(path);assert.ok(fs.existsSync(path));assert.equal(read().media[slot.key],path);
    assert.ok(makeScenes(read())[slot.page].includes(path));
    assert.ok(fs.readFileSync('invitation.html','utf8').includes(path));

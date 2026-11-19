@@ -7,6 +7,17 @@ import {promisify} from 'node:util';
 import sharp from 'sharp';
 const run=promisify(execFile);
 
+export async function createOriginalSubject(body){
+ const metadata=await sharp(body,{limitInputPixels:80_000_000}).metadata();
+ const ext={jpeg:'jpg',png:'png',webp:'webp'}[metadata.format];
+ if(!ext)throw Error('请选择 JPG、PNG 或 WEBP 原照片');
+ fs.mkdirSync('assets/images/uploaded',{recursive:true});
+ const file=`assets/images/uploaded/${randomUUID()}-photo.${ext}`;
+ // Keep the uploaded bytes intact: no segmentation, alpha trimming or AI editing.
+ fs.writeFileSync(file,body);
+ return {path:file,sourcePath:file,width:metadata.width,height:metadata.height,mode:'photo'};
+}
+
 export async function normalizeSubject(input,output){
  const {data,info}=await sharp(input,{limitInputPixels:80_000_000}).rotate().resize({width:1800,height:2400,fit:'inside',withoutEnlargement:true}).toColourspace('srgb').ensureAlpha().raw().toBuffer({resolveWithObject:true});
  let left=info.width,top=info.height,right=-1,bottom=-1,transparent=0;
@@ -15,7 +26,7 @@ export async function normalizeSubject(input,output){
   if(alpha<245)transparent++;
   if(alpha>8){left=Math.min(left,x);right=Math.max(right,x);top=Math.min(top,y);bottom=Math.max(bottom,y);}
  }
- if(right<left||transparent<info.width*info.height*0.01)throw Error('这张图没有有效的透明背景。请选择“自动抠出人物”，或上传已抠好的透明 PNG。');
+ if(right<left||transparent<info.width*info.height*0.01)throw Error('这张图没有有效的透明背景。请使用“上传原照片（不抠图）”，或上传已精修的透明 PNG。');
  await sharp(data,{raw:{width:info.width,height:info.height,channels:4}}).extract({left,top,width:right-left+1,height:bottom-top+1}).png().toFile(output);
  return {width:right-left+1,height:bottom-top+1};
 }

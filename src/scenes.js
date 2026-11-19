@@ -12,7 +12,7 @@ export function makeScenes(c){
  const m=c.media,w=c.wedding,story=c.story;
  const media=(key,fallback)=>Object.hasOwn(m,key)?file(m[key]):file(art(fallback));
  const photo=(key,fallback,label,cls='')=>`<figure class="photo ${cls}" data-media-key="${key}">${media(key,fallback)?`<img src="${esc(media(key,fallback))}" alt="${label}">`:`<div class="photo-blank">${icon('heart')}<span>${label}</span></div>`}</figure>`;
- const subject=(key,cls)=>{const slot=subjectSlots.find(slot=>slot.key===key),src=file(m[key]),position=c.subjectPlacement?.[key]||{};return src?`<figure class="subject-layer ${cls} ${src===slot.defaultPath?'subject-default':'subject-custom'}" data-media-key="${key}" style="--subject-x:${position.x||0}px;--subject-y:${position.y||0}px;--subject-scale:${(position.scale||100)/100}"><img src="${esc(src)}" alt="新人独立人物层"></figure>`:'';};
+ const subject=(key,cls)=>{const slot=subjectSlots.find(slot=>slot.key===key),src=file(m[key]),position=c.subjectPlacement?.[key]||{};return src?`<figure class="subject-layer ${cls} ${src===slot.defaultPath?'subject-default':/-(photo|original)\.(jpg|png|webp)$/i.test(src)?'subject-original':'subject-custom'}" data-media-key="${key}" style="--subject-x:${position.x||0}px;--subject-y:${position.y||0}px;--subject-scale:${(position.scale||100)/100};--photo-focus-x:${50+(position.x||0)/8}%;--photo-focus-y:${50+(position.y||0)/8}%"><img src="${esc(src)}" alt="新人独立人物层"></figure>`:'';};
  const pair=[c.couple.groomName,c.couple.brideName].filter(Boolean).join(' · ');
  const date=w.dateDisplay||w.date;
  const validDate=/^\d{4}-\d{2}-\d{2}$/.test(w.date)&&!Number.isNaN(Date.parse(w.date));
