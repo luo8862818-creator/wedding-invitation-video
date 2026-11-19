@@ -106,5 +106,7 @@
     10,
     8
   ],
-  "backgroundFit": {}
+  "backgroundFit": {
+    "background3": "cover"
+  }
 }
