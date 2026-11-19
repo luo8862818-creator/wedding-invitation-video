@@ -31,7 +31,7 @@ test('all twelve background slots upload, persist, compile and remove without ca
    assert.ok(fs.readFileSync('invitation.html','utf8').includes(path));
    assert.ok(fs.readdirSync('compositions').filter(f=>f.startsWith('scene-')).some(f=>fs.readFileSync('compositions/'+f,'utf8').includes(path)));
    const c=read();c.backgroundFit={...c.backgroundFit,[slot.key]:'contain'};
-   assert.equal((await fetch(base+'/api/config',{method:'PUT',body:JSON.stringify(c)})).status,200);
+   const fitResponse=await fetch(base+'/api/config',{method:'PUT',body:JSON.stringify(c)});assert.equal(fitResponse.status,200,await fitResponse.text());
    assert.ok(makeScenes(read())[slot.page].includes('background-size:contain'));
    assert.equal((await fetch(base+'/api/media',{method:'DELETE',body:JSON.stringify({key:slot.key})})).status,200);
    assert.ok(makeScenes(read())[slot.page].includes('background-image:none'));

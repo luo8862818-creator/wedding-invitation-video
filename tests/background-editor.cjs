@@ -33,7 +33,7 @@ const base='http://127.0.0.1:3210';
   assert.equal((await(await fetch(base+'/api/config')).json()).media[key],'');
   await page.reload({waitUntil:'networkidle0'});assert.equal(await page.$(card+' img'),null);
   await page.$$eval(card+' button',buttons=>buttons.find(b=>b.textContent==='恢复默认样式').click());await waitSaved();
-  assert.equal((await(await fetch(base+'/api/config')).json()).media[key],'assets/images/remake/hero.png');
+  assert.equal((await(await fetch(base+'/api/config')).json()).media[key],'assets/images/layers/hero-background.png');
   assert.equal((await(await fetch(base+'/api/config')).json()).backgroundFit[key],'cover');
   assert.deepEqual(errors,[]);
   console.log('PASS browser: 12 independent backgrounds, upload/replace, reload, contain, correct page preview, remove without fallback, restore default');

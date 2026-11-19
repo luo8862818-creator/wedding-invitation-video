@@ -58,11 +58,11 @@
     }
   ],
   "media": {
-    "coverBackground": "assets/images/remake/cover.png",
-    "coupleCover": "assets/images/characters/couple-cover-pose.png",
+    "coverBackground": "assets/images/layers/cover-background.png",
+    "coupleCover": "assets/images/layers/cover-characters.png",
     "groomPortrait": "",
     "bridePortrait": "",
-    "couplePortrait": "",
+    "couplePortrait": "assets/images/layers/hero-characters.png",
     "storyPhoto1": "",
     "storyPhoto2": "",
     "storyPhoto3": "",
@@ -73,10 +73,10 @@
     "bouquetPhoto": "",
     "venuePhoto": "",
     "venueMapImage": "",
-    "finalePhoto": "",
+    "finalePhoto": "assets/images/layers/finale-characters.png",
     "musicFile": "",
     "background2": "assets/images/remake/names.png",
-    "background3": "assets/images/remake/hero.png",
+    "background3": "assets/images/layers/hero-background.png",
     "background4": "assets/images/remake/stationery.png",
     "background5": "assets/images/remake/memory-bg.png",
     "background6": "assets/images/remake/rings.png",
@@ -85,7 +85,7 @@
     "background9": "assets/images/remake/venue.png",
     "background10": "assets/images/remake/stationery.png",
     "background11": "assets/images/remake/envelope.png",
-    "background12": "assets/images/remake/finale.png"
+    "background12": "assets/images/layers/finale-background.png"
   },
   "sceneDurations": [
     8,
@@ -101,5 +101,6 @@
     10,
     8
   ],
-  "backgroundFit": {}
+  "backgroundFit": {},
+  "subjectPlacement": {}
 }
