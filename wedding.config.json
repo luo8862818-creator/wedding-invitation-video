@@ -10,23 +10,23 @@
     }
   },
   "couple": {
-    "groomName": "张云川",
-    "brideName": "林若溪",
+    "groomName": "罗晓锰",
+    "brideName": "吴小敏",
     "groomEnglishName": "",
     "brideEnglishName": ""
   },
   "wedding": {
-    "date": "2026-05-23",
+    "date": "2027-01-02",
     "dateDisplay": "",
     "weekdayOverride": "",
-    "welcomeTime": "13:30",
-    "ceremonyTime": "14:00",
-    "banquetTime": "18:00",
-    "venueName": "云栖花园酒店",
+    "welcomeTime": "10:00",
+    "ceremonyTime": "11:00",
+    "banquetTime": "12:00",
+    "venueName": "",
     "province": "",
-    "city": "",
-    "district": "",
-    "address": "浙江省杭州市西湖区云栖路88号",
+    "city": "重庆市",
+    "district": "彭水县",
+    "address": "重庆市彭水县联合乡龙池村1组(下龙池)",
     "mapUrl": "",
     "contactName": "",
     "contactPhone": "",
@@ -107,6 +107,7 @@
     8
   ],
   "backgroundFit": {
-    "background3": "cover"
+    "background3": "cover",
+    "coverBackground": "cover"
   }
 }
