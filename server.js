@@ -5,6 +5,7 @@ import {randomUUID} from 'node:crypto';
 import {build} from './src/build.js';
 import {backgroundSlots,subjectSlots} from './src/media-slots.js';
 import {createSubject} from './src/subject-images.js';
+import {MAX_UPLOAD_BYTES,MAX_UPLOAD_MB} from './src/upload-limits.js';
 const root=process.cwd(),configFile=path.join(root,'wedding.config.json');
 export const read=()=>JSON.parse(fs.readFileSync(configFile,'utf8'));
 const mediaKeys=[...new Set([...Object.keys(read().media),...backgroundSlots.map(slot=>slot.key)])];
@@ -13,7 +14,8 @@ export function validate(c){
  for(const group of ['couple','wedding','story','media']){if(!c[group]||typeof c[group]!=='object')throw Error('配置缺少 '+group);for(const [key,value] of Object.entries(c[group])){if(!(key in base[group])&&!(group==='media'&&/^background(?:[2-9]|1[0-2])$/.test(key)))throw Error('未知字段');if(typeof value!=='string'||value.length>3000)throw Error('字段过长或格式错误');}}
  if(c.wedding.date&&!/^\d{4}-\d{2}-\d{2}$/.test(c.wedding.date))throw Error('日期格式错误');
  if(c.wedding.mapUrl&&!/^https?:\/\//.test(c.wedding.mapUrl))throw Error('地图链接需使用 http(s)');
- for(const v of Object.values(c.media))if(v&&(!/^assets\/[\w./-]+$/.test(v)||v.includes('..')||!fs.existsSync(v)))throw Error('素材路径无效');
+ // Missing files render as local placeholders; a stale photo must not block all editing.
+ for(const [key,v] of Object.entries(c.media))if(v&&(!/^assets\/[\w./-]+$/.test(v)||v.includes('..')))throw Error(`素材路径无效（${key}）：请选择文件重新上传`);
  if(!Array.isArray(c.schedule)||c.schedule.length>8||c.schedule.some(s=>!s||['time','title','description'].some(k=>typeof s[k]!=='string'||s[k].length>200)))throw Error('流程最多 8 项，每项最多 200 字');
  if(typeof c.project?.title!=='string'||c.project.title.length>30)throw Error('封面标题最多 30 字');
  if(c.backgroundFit!==undefined&&(!c.backgroundFit||typeof c.backgroundFit!=='object'||Array.isArray(c.backgroundFit)||Object.entries(c.backgroundFit).some(([key,value])=>!backgroundSlots.some(slot=>slot.key===key)||!['cover','contain','fill'].includes(value))))throw Error('背景图片显示方式无效');
@@ -26,7 +28,10 @@ export const server=http.createServer(async(req,res)=>{const reply=(code,obj)=>{
  const url=new URL(req.url,'http://localhost');
  const port=server.address()?.port;
  if(req.method!=='GET'&&req.headers.origin&&![`http://localhost:${port}`,`http://127.0.0.1:${port}`].includes(req.headers.origin))return reply(403,{error:'不允许跨站写入'});
- let body=Buffer.alloc(0);if(req.method!=='GET'){for await(const chunk of req){body=Buffer.concat([body,chunk]);if(body.length>20*1024*1024)return reply(413,{error:'文件上限 20 MB'});}}
+ let body=Buffer.alloc(0);if(req.method!=='GET'){
+  if(Number(req.headers['content-length'])>MAX_UPLOAD_BYTES){req.resume();return reply(413,{error:`文件上限 ${MAX_UPLOAD_MB} MB`});}
+  const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>MAX_UPLOAD_BYTES){req.resume();return reply(413,{error:`文件上限 ${MAX_UPLOAD_MB} MB`});}chunks.push(chunk);}body=Buffer.concat(chunks,size);
+ }
  if(url.pathname==='/api/config'){if(req.method==='GET')return reply(200,read());if(req.method==='PUT')return reply(200,save(JSON.parse(body)));}
  if(url.pathname==='/api/subject'&&req.method==='POST'){
   const key=url.searchParams.get('key');if(!subjectSlots.some(slot=>slot.key===key))throw Error('未知人物位置');
@@ -40,7 +45,7 @@ export const server=http.createServer(async(req,res)=>{const reply=(code,obj)=>{
  let ext='';if(body.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])))ext='png';else if(body[0]===255&&body[1]===216&&body[2]===255)ext='jpg';else if(body.toString('ascii',0,4)==='RIFF'&&body.toString('ascii',8,12)==='WEBP')ext='webp';
  if(key==='musicFile'){ext=body.toString('ascii',0,3)==='ID3'||(body[0]===255&&(body[1]&224)===224)?'mp3':body.toString('ascii',0,4)==='RIFF'&&body.toString('ascii',8,12)==='WAVE'?'wav':'';}
  if(!ext||body.length<24)throw Error('文件内容无效，仅支持 PNG/JPEG/WEBP 或 MP3/WAV 音乐');
- const file=`assets/${key==='musicFile'?'audio':'images/uploaded'}/${randomUUID()}.${ext}`;fs.writeFileSync(file,body);const c=read();c.media[key]=file;try{save(c);}catch(e){fs.unlinkSync(file);throw e;}return reply(200,{path:file,bytes:body.length});
+ const file=`assets/${key==='musicFile'?'audio':'images/uploaded'}/${randomUUID()}.${ext}`;fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,body);const c=read();c.media[key]=file;try{save(c);}catch(e){fs.unlinkSync(file);throw e;}return reply(200,{path:file,bytes:body.length});
  }
  if(url.pathname==='/api/media'&&req.method==='DELETE'){const {key}=JSON.parse(body);if(!mediaKeys.includes(key))throw Error('未知素材位置');const c=read(),old=c.media[key];c.media[key]='';save(c);if(old&&/^assets\/(images\/uploaded|audio)\/[\w-]+\.(png|jpg|webp|mp3|wav)$/.test(old)&&!Object.values(c.media).includes(old))fs.rmSync(old,{force:true});return reply(200,{ok:true});}
  if(url.pathname==='/api/preview'&&req.method==='POST')return reply(200,build(validate(JSON.parse(body)),false));

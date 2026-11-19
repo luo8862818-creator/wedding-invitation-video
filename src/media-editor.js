@@ -1,4 +1,5 @@
 import {backgroundSlots,photoSlots,subjectSlots} from './media-slots.js';
+import {MAX_UPLOAD_BYTES,MAX_UPLOAD_MB} from './upload-limits.js';
 
 export function renderMediaEditor({container,getConfig,api,persist,changed,status,rerender,onPage}){
  container.replaceChildren();
@@ -16,7 +17,7 @@ export function renderMediaEditor({container,getConfig,api,persist,changed,statu
  const perform=async(info,action)=>{
   status('正在保存素材…');info.textContent='正在处理…';
   container.querySelectorAll('button,input,select').forEach(el=>el.disabled=true);
-  try{await action();await changed();rerender();status('素材已保存 · 网页和视频已同步');}
+  try{await action();if(await changed()===false)throw Error('素材已保存，但预览生成失败，请重试。');rerender();status('素材已保存 · 网页和视频已同步');}
   catch(error){info.textContent=error.message;info.classList.add('error');status(error.message,true);}
   finally{container.querySelectorAll('button,input,select').forEach(el=>el.disabled=false);}
  };
@@ -30,7 +31,7 @@ export function renderMediaEditor({container,getConfig,api,persist,changed,statu
   if(path&&key!=='musicFile'){
    const img=document.createElement('img');img.src=path;img.alt=slot.title;
    img.onload=()=>{info.textContent=`${img.naturalWidth} × ${img.naturalHeight} · ${path.split('/').pop()}`;};
-   img.onerror=()=>{info.textContent='图片加载失败，请重新上传';};thumbnail.append(img);
+   img.onerror=()=>{info.textContent='文件已丢失，请重新上传；其它内容可正常编辑。';info.classList.add('error');img.hidden=true;};thumbnail.append(img);
   }else thumbnail.textContent=path?'已配置音乐':background?'未设置背景 · 点击上传自己的照片':'点击上传';
   card.append(thumbnail,info);
   const input=document.createElement('input');input.type='file';input.className='media-file-input';
@@ -41,7 +42,7 @@ export function renderMediaEditor({container,getConfig,api,persist,changed,statu
   input.onchange=async()=>{
    const file=input.files[0];if(!file)return;
    await perform(info,async()=>{
-    if(file.size>20*1024*1024)throw Error('文件上限 20 MB');
+    if(file.size>MAX_UPLOAD_BYTES)throw Error(`文件上限 ${MAX_UPLOAD_MB} MB`);
     if(key!=='musicFile'){
      if(!/\.(png|jpe?g|webp)$/i.test(file.name))throw Error('请选择 PNG、JPG 或 WEBP 图片');
      const bitmap=await createImageBitmap(file).catch(()=>{throw Error('无法读取图片，请选择有效的图片文件');});bitmap.close();
