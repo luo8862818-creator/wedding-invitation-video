@@ -5,3 +5,4 @@ out/
 *.tmp
 .thumbnails/
 renders/
+assets/images/uploaded

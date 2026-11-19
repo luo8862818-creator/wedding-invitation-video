@@ -63,25 +63,25 @@
     }
   ],
   "media": {
-    "coverBackground": "assets/images/remake/cover.png",
-    "coupleCover": "",
+    "coverBackground": "assets/images/layers/cover-background.png",
+    "coupleCover": "assets/images/layers/cover-characters.png",
     "groomPortrait": "assets/images/characters/groom-master.png",
     "bridePortrait": "assets/images/characters/bride-master.png",
-    "couplePortrait": "assets/images/remake/hero.png",
+    "couplePortrait": "assets/images/layers/hero-characters.png",
     "storyPhoto1": "",
     "storyPhoto2": "",
     "storyPhoto3": "",
     "memoryPhoto1": "assets/images/remake/memory1.png",
     "memoryPhoto2": "assets/images/remake/memory2.png",
-    "memoryPhoto3": "assets/images/remake/memory3.png",
+    "memoryPhoto3": "assets/images/uploaded/996f06e4-2d87-4ca6-bb48-318e01f79b05.png",
     "ringPhoto": "assets/images/remake/rings.png",
     "bouquetPhoto": "",
     "venuePhoto": "",
     "venueMapImage": "",
-    "finalePhoto": "assets/images/remake/finale.png",
+    "finalePhoto": "assets/images/layers/finale-characters.png",
     "musicFile": "",
     "background2": "assets/images/remake/names.png",
-    "background3": "assets/images/remake/hero.png",
+    "background3": "assets/images/layers/hero-background.png",
     "background4": "assets/images/remake/stationery.png",
     "background5": "assets/images/remake/memory-bg.png",
     "background6": "assets/images/remake/rings.png",
@@ -90,7 +90,7 @@
     "background9": "assets/images/remake/venue.png",
     "background10": "assets/images/remake/stationery.png",
     "background11": "assets/images/remake/envelope.png",
-    "background12": "assets/images/remake/finale.png"
+    "background12": "assets/images/layers/finale-background.png"
   },
   "sceneDurations": [
     8,
@@ -109,5 +109,17 @@
   "backgroundFit": {
     "background3": "cover",
     "coverBackground": "cover"
+  },
+  "subjectPlacement": {
+    "couplePortrait": {
+      "x": 0,
+      "y": 0,
+      "scale": 100
+    },
+    "coupleCover": {
+      "x": 0,
+      "y": 0,
+      "scale": 100
+    }
   }
 }
