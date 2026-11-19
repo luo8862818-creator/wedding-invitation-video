@@ -22,7 +22,7 @@ const puppeteer=require(process.env.PUPPETEER_PATH||'C:/Users/12293/AppData/Loca
   for(let i=0;i<times.length;i++){console.log('capture',i+1);
    await page.evaluate(t=>window.invitationPlayer.seek(t),times[i]);
    assert.ok(Math.abs((await page.evaluate(()=>window.invitationPlayer.page))-(i+1))<=1);
-   y=await page.$eval('#strip',el=>gsap.getProperty(el,'y'));assert.ok(Math.abs(y+i*1920)<2);
+   y=await page.$eval('#strip',el=>gsap.getProperty(el,'y'));const grid=await page.evaluate(()=>1920/(document.querySelector('#canvas').getBoundingClientRect().height*devicePixelRatio));assert.ok(Math.abs(y+176*times[i])<=grid/2+0.001,'continuous position stays within half a physical pixel');
    await page.waitForFunction(()=>document.fonts.status==='loaded');
    await page.$eval('#viewport',()=>{});
    await (await page.$('#viewport')).screenshot({path:`out/remake/page-${String(i+1).padStart(2,'0')}.png`});

@@ -7,3 +7,4 @@
 .content{pointer-events:none}.content .photo{pointer-events:auto}.artwork{cursor:default}
 .continuous-strip{position:absolute;left:0;top:0;width:1080px;height:23040px}.continuous-panel{position:absolute;left:0;width:1080px;height:1920px}
 .floral-seam{position:absolute;left:0;width:1080px;height:270px;z-index:4;pointer-events:none}.floral-seam img{display:block;width:100%;height:100%;object-fit:fill}.seam-top{top:-135px}.seam-bottom{bottom:-135px}
+#strip,.continuous-strip{will-change:transform;backface-visibility:hidden}

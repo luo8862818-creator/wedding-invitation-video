@@ -10,7 +10,7 @@ export function build(config,write=true){
  const scenes=markup.map((body,i)=>{
   const id=`scene-${String(i+1).padStart(2,'0')}`,duration=durations[i];
   const from=speed*absoluteStart,to=speed*(absoluteStart+duration);
-  const motion=`const tl=gsap.timeline({paused:true});tl.fromTo('#${id}-strip',{y:${-from}},{y:${-to},duration:${duration},ease:'none'},0);window.__timelines=window.__timelines||{};window.__timelines['${id}']=tl;`;
+  const motion=`const tl=gsap.timeline({paused:true});const frameScale=window.frameElement?window.frameElement.getBoundingClientRect().height/(window.innerHeight||1920):1;const pixelRatio=(window.devicePixelRatio||1)*(frameScale||1);tl.fromTo('#${id}-strip',{y:${-from},force3D:true},{y:${-to},force3D:true,duration:${duration},ease:'none',modifiers:{y:value=>(Math.round(parseFloat(value)*pixelRatio)/pixelRatio)+'px'}},0);window.__timelines=window.__timelines||{};window.__timelines['${id}']=tl;`;
   const panels=markup.map((html,j)=>({html,j})).filter(({j})=>(j+1)*1920>=from&&j*1920<=to+1920).map(({html,j})=>`<div class="continuous-panel" style="top:${j*1920}px">${html.replaceAll('SCENEID',id+'-panel-'+j)}</div>`).join('');
   const frame=`<div class="continuous-strip" id="${id}-strip" data-layout-allow-overflow>${panels}</div>`;
   absoluteStart+=duration;
