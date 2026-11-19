@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import {backgroundSlots} from './media-slots.js';
 export const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const sceneCss=()=>fs.readFileSync('src/scene.css','utf8');
 const paths={heart:'M32 53S5 37 5 20C5 3 27 1 32 16C38 1 59 3 59 20C59 37 32 53 32 53Z',calendar:'M10 15H54V55H10Z M10 26H54 M20 7V21 M44 7V21 M20 35H25 M37 35H43 M20 45H25 M37 45H43',rings:'M37 34a18 18 0 1 1-23-13 M26 22a18 18 0 1 1 23 24 M19 8l7 6-5 8-9-3Z M40 7l8 5-4 9-9-3Z',dress:'M25 7l7 7 7-7 5 13-7 12 18 24H9l18-24-7-12Z',car:'M10 29l6-18h32l7 18 M7 30h50v22H7Z M16 52v6 M48 52v6 M14 38h8 M42 38h8 M18 22h28',gift:'M8 27h48v29H8Z M5 19h54v12H5Z M32 20v36 M32 19C6 20 11-7 28 8l4 11C57 20 55-7 38 8Z',glass:'M14 6l-3 20c0 11 17 11 17 0L25 6 M20 35v20 M10 56h20 M39 6l-3 20c0 11 17 11 17 0L50 6 M45 35v20 M35 56h20',meal:'M6 48h52 M10 43c0-31 44-31 44 0Z M29 12h6 M32 6v7',music:'M22 48V12l30-6v34 M22 18l30-6 M22 48c-16-10-21 12-8 9 6-1 8-5 8-9Z M52 40c-16-10-21 12-8 9 6-1 8-5 8-9Z',pin:'M32 58S12 35 12 23a20 20 0 0 1 40 0c0 12-20 35-20 35Z M39 23a7 7 0 1 1-14 0 7 7 0 0 1 14 0'};
@@ -9,7 +10,7 @@ const art=name=>`assets/images/remake/${name}.png`;
 function file(path){return path&&fs.existsSync(path)?path:'';}
 export function makeScenes(c){
  const m=c.media,w=c.wedding,story=c.story;
- const media=(key,fallback)=>file(m[key])||file(art(fallback));
+ const media=(key,fallback)=>Object.hasOwn(m,key)?file(m[key]):file(art(fallback));
  const photo=(key,fallback,label,cls='')=>`<figure class="photo ${cls}" data-media-key="${key}">${media(key,fallback)?`<img src="${esc(media(key,fallback))}" alt="${label}">`:`<div class="photo-blank">${icon('heart')}<span>${label}</span></div>`}</figure>`;
  const pair=[c.couple.groomName,c.couple.brideName].filter(Boolean).join(' · ');
  const date=w.dateDisplay||w.date;
@@ -32,13 +33,13 @@ export function makeScenes(c){
   `<div class="invitation-content reveal"><h2>诚挚邀请</h2>${p(story.invitationText,'invitation-copy')}${flourish()}<div class="contact">${p(w.contactName)}${p(w.contactPhone)}${p(w.rsvpDeadline?'敬请于 '+w.rsvpDeadline+' 前回复':'')}</div></div>`,
   `<div class="finale-copy reveal"><h2>期待您的到来</h2>${p(story.thankYouText||'与我们共赴这场爱的盛宴 ♡')}${flourish()}</div>`
  ];
- const images=['cover','names','hero','stationery','memory-bg','rings','easel','schedule','venue','stationery','envelope','finale'];
  return bodies.map((body,i)=>{
-  const overrides=[m.coverBackground,m.background2,m.couplePortrait,m.background4,m.background5,m.ringPhoto,m.background7,m.background8,m.background9,m.background10,m.background11,m.finalePhoto];
-  const background=file(overrides[i])||file(art(images[i]));
-  const editKeys=['coverBackground','background2','couplePortrait','background4','background5','ringPhoto','background7','background8','background9','background10','background11','finalePhoto'];
+  const slot=backgroundSlots[i];
+  const background=Object.hasOwn(m,slot.key)?file(m[slot.key]):file(slot.defaultPath);
+  const fit=c.backgroundFit?.[slot.key]||'cover';
+  const size=fit==='fill'?'100% 100%':['cover','contain'].includes(fit)?fit:'cover';
   const seam=position=>`<div class="floral-seam seam-${position}" data-layout-ignore aria-hidden="true"><img src="assets/images/decorations/floral-seam.png" alt=""></div>`;
-  return `<div class="scene look-${i+1}"><div class="artwork" data-media-key="${editKeys[i]}" id="SCENEID-art" ${background?`style="background-image:url('${esc(background)}')"`:''}></div><div class="content" id="SCENEID-content">${body}</div>${i>0?seam('top'):''}${i<11?seam('bottom'):''}</div>`;
+  return `<div class="scene look-${i+1}"><div class="artwork" data-media-key="${slot.key}" id="SCENEID-art" style="background-image:${background?`url('${esc(background)}')`:'none'};background-size:${size}"></div><div class="content" id="SCENEID-content">${body}</div>${i>0?seam('top'):''}${i<11?seam('bottom'):''}</div>`;
  });
 }
 export function makeDemo(config){

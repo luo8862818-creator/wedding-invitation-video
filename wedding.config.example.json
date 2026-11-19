@@ -58,7 +58,7 @@
     }
   ],
   "media": {
-    "coverBackground": "assets/images/backgrounds/bg-cover-flower-garden.png",
+    "coverBackground": "assets/images/remake/cover.png",
     "coupleCover": "assets/images/characters/couple-cover-pose.png",
     "groomPortrait": "",
     "bridePortrait": "",
@@ -74,7 +74,18 @@
     "venuePhoto": "",
     "venueMapImage": "",
     "finalePhoto": "",
-    "musicFile": ""
+    "musicFile": "",
+    "background2": "assets/images/remake/names.png",
+    "background3": "assets/images/remake/hero.png",
+    "background4": "assets/images/remake/stationery.png",
+    "background5": "assets/images/remake/memory-bg.png",
+    "background6": "assets/images/remake/rings.png",
+    "background7": "assets/images/remake/easel.png",
+    "background8": "assets/images/remake/schedule.png",
+    "background9": "assets/images/remake/venue.png",
+    "background10": "assets/images/remake/stationery.png",
+    "background11": "assets/images/remake/envelope.png",
+    "background12": "assets/images/remake/finale.png"
   },
   "sceneDurations": [
     8,
@@ -89,5 +100,6 @@
     8,
     10,
     8
-  ]
+  ],
+  "backgroundFit": {}
 }

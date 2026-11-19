@@ -71,9 +71,9 @@
     "storyPhoto1": "",
     "storyPhoto2": "",
     "storyPhoto3": "",
-    "memoryPhoto1": "",
-    "memoryPhoto2": "",
-    "memoryPhoto3": "",
+    "memoryPhoto1": "assets/images/remake/memory1.png",
+    "memoryPhoto2": "assets/images/remake/memory2.png",
+    "memoryPhoto3": "assets/images/remake/memory3.png",
     "ringPhoto": "assets/images/remake/rings.png",
     "bouquetPhoto": "",
     "venuePhoto": "",
@@ -105,5 +105,6 @@
     8,
     10,
     8
-  ]
+  ],
+  "backgroundFit": {}
 }

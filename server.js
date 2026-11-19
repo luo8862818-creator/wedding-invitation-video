@@ -3,9 +3,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {randomUUID} from 'node:crypto';
 import {build} from './src/build.js';
+import {backgroundSlots} from './src/media-slots.js';
 const root=process.cwd(),configFile=path.join(root,'wedding.config.json');
 export const read=()=>JSON.parse(fs.readFileSync(configFile,'utf8'));
-const mediaKeys=Object.keys(read().media);
+const mediaKeys=[...new Set([...Object.keys(read().media),...backgroundSlots.map(slot=>slot.key)])];
 export function validate(c){
  const base=JSON.parse(fs.readFileSync('wedding.config.example.json','utf8'));
  for(const group of ['couple','wedding','story','media']){if(!c[group]||typeof c[group]!=='object')throw Error('配置缺少 '+group);for(const [key,value] of Object.entries(c[group])){if(!(key in base[group])&&!(group==='media'&&/^background(?:[2-9]|1[0-2])$/.test(key)))throw Error('未知字段');if(typeof value!=='string'||value.length>3000)throw Error('字段过长或格式错误');}}
@@ -14,6 +15,7 @@ export function validate(c){
  for(const v of Object.values(c.media))if(v&&(!/^assets\/[\w./-]+$/.test(v)||v.includes('..')||!fs.existsSync(v)))throw Error('素材路径无效');
  if(!Array.isArray(c.schedule)||c.schedule.length>8||c.schedule.some(s=>!s||['time','title','description'].some(k=>typeof s[k]!=='string'||s[k].length>200)))throw Error('流程最多 8 项，每项最多 200 字');
  if(typeof c.project?.title!=='string'||c.project.title.length>30)throw Error('封面标题最多 30 字');
+ if(c.backgroundFit!==undefined&&(!c.backgroundFit||typeof c.backgroundFit!=='object'||Array.isArray(c.backgroundFit)||Object.entries(c.backgroundFit).some(([key,value])=>!backgroundSlots.some(slot=>slot.key===key)||!['cover','contain','fill'].includes(value))))throw Error('背景图片显示方式无效');
  return {...c,project:{...base.project,title:c.project.title},sceneDurations:base.sceneDurations};
 }
 function save(c){c=validate(c);build(c);fs.writeFileSync(configFile+'.tmp',JSON.stringify(c,null,2));fs.renameSync(configFile+'.tmp',configFile);return c;}
