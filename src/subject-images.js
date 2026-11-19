@@ -8,7 +8,9 @@ import sharp from 'sharp';
 const run=promisify(execFile);
 
 export async function createOriginalSubject(body){
- const metadata=await sharp(body,{limitInputPixels:80_000_000}).metadata();
+ // This path only reads the header and copies the original bytes. It does not
+ // decode pixels, so a processing-library pixel ceiling must not reject photos.
+ const metadata=await sharp(body,{limitInputPixels:false}).metadata();
  const ext={jpeg:'jpg',png:'png',webp:'webp'}[metadata.format];
  if(!ext)throw Error('请选择 JPG、PNG 或 WEBP 原照片');
  fs.mkdirSync('assets/images/uploaded',{recursive:true});

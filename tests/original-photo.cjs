@@ -8,7 +8,8 @@ const base=process.env.WEDDING_TEST_URL||'http://127.0.0.1:3211';
  const original=await(await fetch(base+'/api/config')).json();let browser,uploaded;
  try{
   fs.mkdirSync('out/original-photo',{recursive:true});
-  const fixture=path.resolve('out/original-photo/opaque-photo.jpg');await sharp({create:{width:1200,height:1800,channels:3,background:'#a63430'}}).jpeg().toFile(fixture);
+  const fixture=path.resolve('out/original-photo/opaque-photo.jpg');await sharp({create:{width:9000,height:9001,channels:3,background:'#a63430'}}).jpeg().toFile(fixture);
+  const metadata=await sharp(fixture,{limitInputPixels:false}).metadata();assert.ok(metadata.width*metadata.height>80_000_000);
   browser=await puppeteer.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true,args:['--no-sandbox']});
   const page=await browser.newPage();page.setDefaultTimeout(60000);page.setDefaultNavigationTimeout(90000);await page.setViewport({width:1500,height:1000});
   await page.goto(base+'/editor.html',{waitUntil:'networkidle0'});
@@ -21,6 +22,6 @@ const base=process.env.WEDDING_TEST_URL||'http://127.0.0.1:3211';
   await page.goto(base+'/invitation.html',{waitUntil:'networkidle0'});await page.evaluate(()=>{invitationPlayer.timeline.pause();invitationPlayer.jump(2);});
   const layer=await page.$eval('#web-scene-3 .subject-original',el=>{const img=el.querySelector('img'),text=el.parentElement.querySelector('.hero-copy');return {width:el.offsetWidth,height:el.offsetHeight,fit:getComputedStyle(img).objectFit,photoZ:Number(getComputedStyle(el).zIndex),textZ:Number(getComputedStyle(text).zIndex),count:el.parentElement.querySelectorAll('.subject-layer').length};});
   assert.equal(layer.width,1080);assert.equal(layer.height,1500);assert.equal(layer.fit,'cover');assert.equal(layer.count,1);assert.ok(layer.textZ>layer.photoZ);
-  console.log('PASS: original upload remains byte-for-byte intact; fills reserved area; no duplicate cartoon or segmentation; text stays above photo and background unchanged');
+  console.log('PASS: 81-million-pixel JPEG uploads through editor; original bytes intact; reserved area filled; no segmentation; text above photo; background unchanged');
  }finally{await fetch(base+'/api/config',{method:'PUT',body:JSON.stringify(original)});if(uploaded)fs.rmSync(uploaded,{force:true});await browser?.close();}
 })().catch(e=>{console.error(e);process.exit(1);});

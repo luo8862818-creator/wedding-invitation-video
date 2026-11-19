@@ -45,7 +45,9 @@ export function renderMediaEditor({container,getConfig,api,persist,changed,statu
     if(file.size>MAX_UPLOAD_BYTES)throw Error(`文件上限 ${MAX_UPLOAD_MB} MB`);
     if(key!=='musicFile'){
      if(!/\.(png|jpe?g|webp)$/i.test(file.name))throw Error('请选择 PNG、JPG 或 WEBP 图片');
-     const bitmap=await createImageBitmap(file).catch(()=>{throw Error('无法读取图片，请选择有效的图片文件');});bitmap.close();
+     // Subject headers are validated on the server; avoid decoding a camera's
+     // full-resolution image once here and again for the actual preview.
+     if(!subject){const bitmap=await createImageBitmap(file,{resizeWidth:256,resizeHeight:256}).catch(()=>{throw Error('无法读取图片，请选择有效的图片文件');});bitmap.close();}
     }
     info.textContent=subject?'正在保存原照片…':'正在上传…';await persist();
     const result=await api(subject?'/api/subject?key='+key+(input.dataset.cutout==='0'?'&cutout=0':''):'/api/upload?key='+key,{method:'POST',body:file});
@@ -53,6 +55,7 @@ export function renderMediaEditor({container,getConfig,api,persist,changed,statu
     if(subject)getConfig().subjectPlacement={...getConfig().subjectPlacement,[key]:{x:0,y:0,scale:100}};
     if(slot.page!==undefined)onPage(slot.page);
    });
+   input.value=''; // A failed upload can be retried with the same selected file.
   };
   const controls=document.createElement('div');controls.className='media-actions';controls.append(upload);
   if(subject){const transparent=document.createElement('button');transparent.type='button';transparent.textContent='上传已抠好的透明 PNG';transparent.onclick=()=>{input.dataset.cutout='0';input.click();};controls.append(transparent);}
