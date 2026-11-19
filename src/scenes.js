@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import {backgroundSlots,subjectSlots} from './media-slots.js';
+import {displayImage} from './display-images.js';
 export const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const sceneCss=()=>fs.readFileSync('src/scene.css','utf8');
 const paths={heart:'M32 53S5 37 5 20C5 3 27 1 32 16C38 1 59 3 59 20C59 37 32 53 32 53Z',calendar:'M10 15H54V55H10Z M10 26H54 M20 7V21 M44 7V21 M20 35H25 M37 35H43 M20 45H25 M37 45H43',rings:'M37 34a18 18 0 1 1-23-13 M26 22a18 18 0 1 1 23 24 M19 8l7 6-5 8-9-3Z M40 7l8 5-4 9-9-3Z',dress:'M25 7l7 7 7-7 5 13-7 12 18 24H9l18-24-7-12Z',car:'M10 29l6-18h32l7 18 M7 30h50v22H7Z M16 52v6 M48 52v6 M14 38h8 M42 38h8 M18 22h28',gift:'M8 27h48v29H8Z M5 19h54v12H5Z M32 20v36 M32 19C6 20 11-7 28 8l4 11C57 20 55-7 38 8Z',glass:'M14 6l-3 20c0 11 17 11 17 0L25 6 M20 35v20 M10 56h20 M39 6l-3 20c0 11 17 11 17 0L50 6 M45 35v20 M35 56h20',meal:'M6 48h52 M10 43c0-31 44-31 44 0Z M29 12h6 M32 6v7',music:'M22 48V12l30-6v34 M22 18l30-6 M22 48c-16-10-21 12-8 9 6-1 8-5 8-9Z M52 40c-16-10-21 12-8 9 6-1 8-5 8-9Z',pin:'M32 58S12 35 12 23a20 20 0 0 1 40 0c0 12-20 35-20 35Z M39 23a7 7 0 1 1-14 0 7 7 0 0 1 14 0'};
@@ -7,12 +8,12 @@ const icon=(name,cls='')=>`<svg class="icon ${cls}" viewBox="0 0 64 64" aria-hid
 const flourish=()=>`<div class="flourish"><span></span>${icon('heart')}<span></span></div>`;
 const p=(value,cls='')=>value?`<p class="${cls}">${esc(value)}</p>`:'';
 const art=name=>`assets/images/remake/${name}.png`;
-function file(path){return path&&fs.existsSync(path)?path:'';}
+function file(path){return displayImage(path);}
 export function makeScenes(c){
  const m=c.media,w=c.wedding,story=c.story;
  const media=(key,fallback)=>Object.hasOwn(m,key)?file(m[key]):file(art(fallback));
  const photo=(key,fallback,label,cls='')=>`<figure class="photo ${cls}" data-media-key="${key}">${media(key,fallback)?`<img src="${esc(media(key,fallback))}" alt="${label}">`:`<div class="photo-blank">${icon('heart')}<span>${label}</span></div>`}</figure>`;
- const subject=(key,cls)=>{const slot=subjectSlots.find(slot=>slot.key===key),src=file(m[key]),position=c.subjectPlacement?.[key]||{};return src?`<figure class="subject-layer ${cls} ${src===slot.defaultPath?'subject-default':/-(photo|original)\.(jpg|png|webp)$/i.test(src)?'subject-original':'subject-custom'}" data-media-key="${key}" style="--subject-x:${position.x||0}px;--subject-y:${position.y||0}px;--subject-scale:${(position.scale||100)/100};--photo-focus-x:${50+(position.x||0)/8}%;--photo-focus-y:${50+(position.y||0)/8}%"><img src="${esc(src)}" alt="新人独立人物层"></figure>`:'';};
+ const subject=(key,cls)=>{const slot=subjectSlots.find(slot=>slot.key===key),src=file(m[key]),position=c.subjectPlacement?.[key]||{};return src?`<figure class="subject-layer ${cls} ${m[key]===slot.defaultPath?'subject-default':/-(photo|original)\.(jpg|png|webp)$/i.test(m[key])?'subject-original':'subject-custom'}" data-media-key="${key}" style="--subject-x:${position.x||0}px;--subject-y:${position.y||0}px;--subject-scale:${(position.scale||100)/100};--photo-focus-x:${50+(position.x||0)/8}%;--photo-focus-y:${50+(position.y||0)/8}%"><img src="${esc(src)}" alt="新人独立人物层"></figure>`:'';};
  const pair=[c.couple.groomName,c.couple.brideName].filter(Boolean).join(' · ');
  const date=w.dateDisplay||w.date;
  const validDate=/^\d{4}-\d{2}-\d{2}$/.test(w.date)&&!Number.isNaN(Date.parse(w.date));

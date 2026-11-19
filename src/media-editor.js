@@ -29,7 +29,7 @@ export function renderMediaEditor({container,getConfig,api,persist,changed,statu
   const thumbnail=document.createElement('div');thumbnail.className='asset-preview';
   const info=document.createElement('small');info.setAttribute('role','status');
   if(path&&key!=='musicFile'){
-   const img=document.createElement('img');img.src=path;img.alt=slot.title;
+   const img=document.createElement('img');img.src='api/media-preview?key='+encodeURIComponent(key);img.alt=slot.title;
    img.onload=()=>{info.textContent=`${img.naturalWidth} × ${img.naturalHeight} · ${path.split('/').pop()}`;};
    img.onerror=()=>{info.textContent='文件已丢失，请重新上传；其它内容可正常编辑。';info.classList.add('error');img.hidden=true;};thumbnail.append(img);
   }else thumbnail.textContent=path?'已配置音乐':background?'未设置背景 · 点击上传自己的照片':'点击上传';

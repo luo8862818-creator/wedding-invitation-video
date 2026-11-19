@@ -50,3 +50,7 @@ CLI 启动器路径是本机技能位置。浏览器测试使用本机 Chrome �
 修改模板逻辑请编辑 `src/build.js` 和 `src/scene.css` 后运行 build，直接修改已生成的 composition 会在下次保存时被覆盖。`assets/fonts` 使用 SIL OFL 的 Ma Shan Zheng 和 Noto Serif SC，授权见同目录许可证。GSAP 为原项目 3.15.0 的本地供应副本。
 
 缺失的旧素材仅在对应卡片提示重新上传，不会阻止姓名、日期编辑、其它照片上传或整页预览。保留缺失文件引用，方便找回原文件，不会自动替换成其它照片。上传前后端共用 100 MB 限制。
+
+播放性能：原图保留在 uploaded，显示与渲染使用自动生成的 optimized WebP 副本（最大 1920×2880，保留透明通道）。启动编辑器、保存和命令行 build 会准备副本；修改裁切、文字不重复处理原图。请勿手动修改 optimized 文件，删除副本后运行 build 可再生成。编辑器缩略图也使用副本。自动播放前预解码背景和照片；加载期间暂停、后台切换、重播保持正确状态。
+
+性能验证：`node tests/playback-performance.cjs` 对当前配置三个实际播放区间采集帧间隔，结果保存到 out/performance；`node tests/player-controls.cjs` 验证控制按钮。会修改配置的其它测试须在独立目录串行运行，不要让多个测试同时改同一个测试配置。

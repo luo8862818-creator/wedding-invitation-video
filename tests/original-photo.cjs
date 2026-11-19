@@ -20,6 +20,7 @@ const base=process.env.WEDDING_TEST_URL||'http://127.0.0.1:3211';
   const c=await(await fetch(base+'/api/config')).json();uploaded=c.media.couplePortrait;
   assert.ok(uploaded.includes('-photo.jpg'));assert.deepEqual(fs.readFileSync(uploaded),fs.readFileSync(fixture));assert.equal(c.media.background3,original.media.background3);
   await page.goto(base+'/invitation.html',{waitUntil:'networkidle0'});await page.evaluate(()=>{invitationPlayer.timeline.pause();invitationPlayer.jump(2);});
+  const playback=await page.$eval('#web-scene-3 .subject-original img',el=>({src:el.getAttribute('src'),width:el.naturalWidth,height:el.naturalHeight}));assert.ok(playback.src.includes('/optimized/'));assert.ok(playback.width<=1920&&playback.height<=2880);
   const layer=await page.$eval('#web-scene-3 .subject-original',el=>{const img=el.querySelector('img'),text=el.parentElement.querySelector('.hero-copy');return {width:el.offsetWidth,height:el.offsetHeight,fit:getComputedStyle(img).objectFit,photoZ:Number(getComputedStyle(el).zIndex),textZ:Number(getComputedStyle(text).zIndex),count:el.parentElement.querySelectorAll('.subject-layer').length};});
   assert.equal(layer.width,1080);assert.equal(layer.height,1500);assert.equal(layer.fit,'cover');assert.equal(layer.count,1);assert.ok(layer.textZ>layer.photoZ);
   console.log('PASS: 81-million-pixel JPEG uploads through editor; original bytes intact; reserved area filled; no segmentation; text above photo; background unchanged');

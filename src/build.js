@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import {makeScenes,sceneCss} from './scenes.js';
 import {webPage} from './web-page.js';
+import {prepareDisplayImages} from './display-images.js';
 export const durations=[8,8,10,10,12,10,12,12,12,8,10,8];
 export const titles=['我们的婚礼邀请函','新人登场','遇见你','我们的故事','甜蜜回忆','因为是你','婚礼日期','婚礼流程','婚礼地点','宾客提示','诚挚邀请','期待您的到来'];
 export function build(config,write=true){
@@ -26,4 +27,4 @@ export function build(config,write=true){
  }
  return scenes;
 }
-if(process.argv[1]?.endsWith('build.js'))build(JSON.parse(fs.readFileSync('wedding.config.json','utf8')));
+if(process.argv[1]?.endsWith('build.js')){const config=JSON.parse(fs.readFileSync('wedding.config.json','utf8'));await prepareDisplayImages(config);build(config);}
